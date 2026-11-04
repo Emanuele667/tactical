@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#111916">
+<title>TACTICAL AI — Mission Control</title>
+<style>
+:root{--bg:#0b100e;--panel:#141d19;--panel2:#1a2620;--line:#2b3a31;--text:#edf4ee;--muted:#9aaba0;--green:#a8d66d;--green2:#6f9e45;--red:#e47b6d;--amber:#e5bd68}
+*{box-sizing:border-box}body{margin:0;background:radial-gradient(ellipse at top,#1b2a20 0,#0b100e 55%);color:var(--text);font:15px system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;min-height:100vh}
+header{padding:22px 18px 14px;position:sticky;top:0;background:#0d1512ed;backdrop-filter:blur(14px);z-index:5;border-bottom:1px solid var(--line)}
+.brand{display:flex;align-items:center;gap:11px}.mark{width:40px;height:40px;border:1px solid #66834c;border-radius:12px;display:grid;place-items:center;color:var(--green);font-weight:900;font-size:19px}.brand strong{letter-spacing:2px;font-size:16px}.brand small{display:block;color:var(--muted);font-size:10px;letter-spacing:2px;margin-top:2px}
+main{max-width:760px;margin:auto;padding:18px 15px 100px}.hero{padding:20px;border:1px solid #40533e;border-radius:18px;background:linear-gradient(135deg,#243527,#121b17 70%);margin-bottom:16px}.eyebrow{color:var(--green);font-size:11px;font-weight:800;letter-spacing:2px}.hero h1{font-size:27px;line-height:1.08;margin:9px 0}.hero p{color:#c0cec2;margin:0;font-size:13px;line-height:1.5}.status{display:inline-flex;align-items:center;gap:7px;color:var(--green);font-size:11px;margin-top:15px}.dot{width:7px;height:7px;background:var(--green);border-radius:50%}
+nav{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin:16px 0}nav button{padding:11px 4px;border:1px solid var(--line);background:#121a16;color:var(--muted);border-radius:11px;font-size:12px}nav button.active{background:#263825;border-color:#6c8c50;color:#e9f5df}
+.card{background:linear-gradient(160deg,#17221c,#111915);border:1px solid var(--line);border-radius:16px;padding:16px;margin:12px 0}.card h2{font-size:16px;margin:0 0 13px}.row{display:flex;gap:10px;align-items:center}.row>*{min-width:0;flex:1}.grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}.field{margin:10px 0}.field label{display:block;color:var(--muted);font-size:11px;margin-bottom:6px;letter-spacing:.4px}input,select,textarea{width:100%;background:#0d1511;border:1px solid #35463a;color:var(--text);border-radius:10px;padding:12px;font:inherit;outline:none}textarea{min-height:75px;resize:vertical}button{cursor:pointer;font:inherit}.btn{border:1px solid #66864c;background:#8fb95b;color:#10170e;font-weight:800;padding:12px 14px;border-radius:11px;width:100%;margin-top:8px}.btn.secondary{background:#1b2921;color:var(--text);border-color:#3b5140}.btn.ghost{background:transparent;color:var(--muted);border-color:var(--line)}.btn.danger{background:#40231f;color:#ffd9d3;border-color:#77443c}.muted{color:var(--muted)}.tiny{font-size:11px;color:var(--muted);line-height:1.5}.pill{display:inline-block;padding:5px 8px;border:1px solid #526c43;border-radius:30px;color:var(--green);font-size:10px;letter-spacing:.5px}.objective{display:flex;gap:10px;padding:12px 0;border-top:1px solid var(--line);align-items:flex-start}.objective:first-child{border-top:0}.objnum{background:#263725;color:var(--green);border-radius:8px;padding:7px 9px;font-weight:800}.objective strong{display:block;font-size:13px}.objective small{color:var(--muted)}.objective .points{margin-left:auto;color:var(--amber);font-weight:800;white-space:nowrap}.hidden{display:none!important}.score{font-size:28px;font-weight:850;color:var(--green)}.timer{font-size:42px;font-weight:850;letter-spacing:2px;text-align:center;font-variant-numeric:tabular-nums;margin:12px}.teamline{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-top:1px solid var(--line)}.teamline:first-child{border:0}.teamline button{width:36px;height:36px;border-radius:9px;border:1px solid var(--line);background:#253428;color:var(--green);font-size:18px}.notice{background:#25291c;border:1px solid #555638;color:#e7d99c;border-radius:11px;padding:11px;font-size:11px;line-height:1.5;margin-top:12px}.mapbox{height:190px;border-radius:13px;background:repeating-linear-gradient(0deg,transparent 0 29px,#30423555 30px),repeating-linear-gradient(90deg,transparent 0 29px,#30423555 30px),linear-gradient(135deg,#1e3226,#15231c);border:1px solid #3a5140;display:grid;place-items:center;text-align:center;color:#b6c8b6;padding:15px}.footer{position:fixed;bottom:0;left:0;right:0;padding:10px 15px calc(10px + env(safe-area-inset-bottom));background:#0d1512ed;border-top:1px solid var(--line);text-align:center;color:var(--muted);font-size:10px;backdrop-filter:blur(12px)}
+@media(min-width:600px){main{padding-top:26px}.hero h1{font-size:34px}}
+</style>
+</head>
+<body>
+<header><div class="brand"><div class="mark">T</div><div><strong>TACTICAL AI</strong><small>MISSION CONTROL · WEB MVP 0.1</small></div></div></header>
+<main>
+<section class="hero"><div class="eyebrow">AIRSOFT MISSION SYSTEM</div><h1>La regia della tua<br>prossima partita.</h1><p>Crea scenari, gestisci obiettivi e squadre, tieni sotto controllo tempi e punteggi. Prototipo locale per test e briefing.</p><div class="status"><span class="dot"></span> PROTOTIPO PRONTO · DATI SALVATI SU QUESTO DISPOSITIVO</div></section>
+<nav><button class="active" data-tab="setup">PARTITA</button><button data-tab="mission">MISSIONE</button><button data-tab="score">PUNTEGGI</button><button data-tab="field">CAMPO</button></nav>
+
+<section id="setup" class="tab">
+<div class="card"><h2>01 / Configura operazione</h2>
+<div class="field"><label>NOME OPERAZIONE</label><input id="gameName" value="OPERAZIONE BLACKOUT" maxlength="48"></div>
+<div class="grid"><div class="field"><label>DURATA (MINUTI)</label><input id="duration" type="number" min="5" max="480" value="90"></div><div class="field"><label>GIOCATORI</label><input id="players" type="number" min="2" max="200" value="20"></div></div>
+<div class="field"><label>TIPO DI PARTITA</label><select id="mode"><option>MilSim</option><option>Competitiva</option><option>Scenario misto</option></select></div>
+<button class="btn" id="saveGame">SALVA CONFIGURAZIONE</button><div class="tiny" id="saveMsg" aria-live="polite">Le modifiche vengono salvate sul dispositivo.</div></div>
+<div class="card"><h2>02 / Squadre</h2><div class="grid"><div class="field"><label>SQUADRA ALFA</label><input id="teamA" value="ALFA"></div><div class="field"><label>SQUADRA BRAVO</label><input id="teamB" value="BRAVO"></div></div><button class="btn secondary" id="saveTeams">SALVA SQUADRE</button></div>
+<div class="card"><h2>03 / Generatore missione</h2><p class="tiny">Genera uno scenario dimostrativo usando modelli locali. L'integrazione con un servizio IA online verrà aggiunta in una fase successiva.</p><div class="field"><label>AMBIENTAZIONE</label><select id="setting"><option>Area boschiva</option><option>Area industriale</option><option>Scenario urbano autorizzato</option><option>Campo misto</option></select></div><div class="field"><label>STILE</label><select id="style"><option>Ricognizione e recupero</option><option>Conquista e controllo</option><option>Ricerca e disinnesco simulato</option><option>Scorta e estrazione</option></select></div><button class="btn" id="generate">GENERA SCENARIO</button></div>
+</section>
+
+<section id="mission" class="tab hidden">
+<div class="card"><div class="row"><div><div class="eyebrow">MISSION BRIEF</div><h2 id="missionTitle">OPERAZIONE BLACKOUT</h2></div><span class="pill">SCENARIO</span></div><p class="tiny" id="story">Recuperare il dispositivo di comunicazione simulato e completare l'estrazione entro il tempo stabilito.</p><div id="objectives"></div><button class="btn secondary" id="addObjective">+ AGGIUNGI OBIETTIVO</button><div class="notice">Gli obiettivi e gli ordigni sono esclusivamente elementi di gioco digitali o accessori inerti. Nessun dispositivo esplosivo reale.</div></div>
+<div class="card"><h2>Timer missione</h2><div class="timer" id="timer">90:00</div><div class="grid"><button class="btn" id="startTimer">AVVIA</button><button class="btn secondary" id="pauseTimer">PAUSA</button></div><button class="btn ghost" id="resetTimer">AZZERA TIMER</button></div>
+</section>
+
+<section id="score" class="tab hidden">
+<div class="card"><h2>Classifica operazione</h2><div class="teamline"><div><strong id="labelA">ALFA</strong><div class="tiny">Punteggio squadra</div></div><div class="score" id="scoreA">0</div><button id="minusA" aria-label="Togli punto ad Alfa">−</button><button id="plusA" aria-label="Aggiungi punto ad Alfa">+</button></div><div class="teamline"><div><strong id="labelB">BRAVO</strong><div class="tiny">Punteggio squadra</div></div><div class="score" id="scoreB">0</div><button id="minusB" aria-label="Togli punto a Bravo">−</button><button id="plusB" aria-label="Aggiungi punto a Bravo">+</button></div><p class="tiny">Nel prototipo i punti sono assegnati manualmente dall'organizzatore. L'arbitraggio automatico arriverà con un registro eventi verificabile.</p><button class="btn danger" id="resetScores">AZZERA PUNTEGGI</button></div>
+<div class="card"><h2>Registro eventi</h2><div id="log" class="tiny">Nessun evento registrato.</div></div>
+</section>
+
+<section id="field" class="tab hidden">
+<div class="card"><h2>Situazione campo</h2><div class="mapbox"><div><div style="font-size:28px">⌖</div><strong>MAPPA OPERATIVA</strong><p class="tiny">La cartografia offline e i marker GPS saranno integrati nella prossima versione.</p></div></div><button class="btn" id="gps">ATTIVA / VERIFICA GPS</button><p class="tiny" id="gpsStatus">GPS non attivo. La posizione viene richiesta solo dopo aver premuto il pulsante.</p><div class="notice">La posizione GPS del singolo iPhone non viene automaticamente trasmessa agli altri giocatori. Per farlo servirà un collegamento locale tra dispositivi oppure Internet. La condivisione sarà facoltativa e visibile agli utenti autorizzati.</div></div>
+<div class="card"><h2>Stato connessione</h2><div class="teamline"><span>Rete Internet</span><strong id="netStatus">—</strong></div><div class="teamline"><span>Salvataggio locale</span><strong style="color:var(--green)">ATTIVO</strong></div><div class="tiny">Questo prototipo conserva configurazione, missione e punteggi nel browser di questo dispositivo.</div></div>
+</section>
+</main>
+<div class="footer">TACTICAL AI · MVP 0.1 · PROTOTIPO NON ANCORA MULTIUTENTE</div>
+<script>
+const $=id=>document.getElementById(id);
+const defaults={gameName:"OPERAZIONE BLACKOUT",duration:90,players:20,mode:"MilSim",teamA:"ALFA",teamB:"BRAVO",scoreA:0,scoreB:0,remaining:5400,objectives:[
+ {name:"Recupera il dispositivo simulato",detail:"Raggiungi il punto obiettivo e registra il recupero.",points:100,done:false},
+ {name:"Trova il codice di accesso",detail:"Il codice è fornito dall'organizzatore durante il briefing.",points:50,done:false},
+ {name:"Disinnesca il dispositivo virtuale",detail:"Completa la sequenza digitale entro il timer assegnato.",points:100,done:false},
+ {name:"Raggiungi l'estrazione",detail:"Concludi la missione al punto concordato.",points:150,done:false}
+],story:"Una squadra deve recuperare un dispositivo di comunicazione simulato, verificare il codice e raggiungere l'area di estrazione entro il tempo stabilito.",log:[]};
+let state={...defaults,...JSON.parse(localStorage.getItem("tactical-ai-state")||"{}")};
+let tick=null;
+function persist(){localStorage.setItem("tactical-ai-state",JSON.stringify(state))}
+function loadFields(){["gameName","duration","players","mode","teamA","teamB"].forEach(k=>$(k).value=state[k]);render()}
+function render(){ $("missionTitle").textContent=state.gameName;$("labelA").textContent=state.teamA;$("labelB").textContent=state.teamB;$("scoreA").textContent=state.scoreA;$("scoreB").textContent=state.scoreB;$("story").textContent=state.story;$("timer").textContent=fmt(state.remaining);$("log").innerHTML=state.log.length?state.log.slice(-8).reverse().map(x=>"• "+escapeHtml(x)).join("<br>"):"Nessun evento registrato.";$("objectives").innerHTML=state.objectives.map((o,i)=>`<div class="objective"><span class="objnum">${String(i+1).padStart(2,"0")}</span><div style="flex:1"><strong>${escapeHtml(o.name)}</strong><small>${escapeHtml(o.detail)}</small><div style="margin-top:7px"><label style="font-size:10px"><input type="checkbox" data-done="${i}" ${o.done?"checked":""} style="width:auto;vertical-align:middle"> Completato</label></div></div><span class="points">${o.points} PT</span></div>`).join("");document.querySelectorAll("[data-done]").forEach(c=>c.addEventListener("change",()=>{let o=state.objectives[+c.dataset.done];o.done=c.checked;eventLog((c.checked?"Completato: ":"Riaperto: ")+o.name);persist();render()}));$("netStatus").textContent=navigator.onLine?"ONLINE":"OFFLINE"}
+function fmt(s){let m=Math.floor(s/60),sec=s%60;return String(m).padStart(2,"0")+":"+String(sec).padStart(2,"0")}
+function escapeHtml(s){return String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]))}
+function eventLog(s){state.log.push(new Date().toLocaleTimeString("it-IT")+" — "+s);state.log=state.log.slice(-30)}
+document.querySelectorAll("nav button").forEach(b=>b.onclick=()=>{document.querySelectorAll("nav button").forEach(x=>x.classList.toggle("active",x===b));document.querySelectorAll(".tab").forEach(t=>t.classList.toggle("hidden",t.id!==b.dataset.tab))});
+$("saveGame").onclick=()=>{["gameName","duration","players","mode"].forEach(k=>state[k]=$(k).value);state.remaining=Math.min(state.remaining,Number(state.duration)*60);persist();render();$("saveMsg").textContent="Configurazione salvata su questo iPhone/browser."};
+$("saveTeams").onclick=()=>{state.teamA=$("teamA").value;state.teamB=$("teamB").value;persist();render();eventLog("Nomi squadre aggiornati");persist();render()};
+$("generate").onclick=()=>{let setting=$("setting").value,style=$("style").value;state.story=`Scenario ${setting.toLowerCase()}: ${style.toLowerCase()}. Le squadre devono completare gli obiettivi assegnati e raggiungere l'estrazione entro il tempo stabilito. L'organizzatore convalida gli eventi e i risultati.`;state.objectives=[
+{name:"Individua il punto obiettivo",detail:"Raggiungi il marker predisposto dall'organizzatore.",points:100,done:false},
+{name:"Recupera il pacchetto simulato",detail:"Conferma il recupero tramite l'organizzatore.",points:100,done:false},
+{name:"Completa il dispositivo digitale",detail:"Risolvi il codice o la sequenza virtuale prevista.",points:150,done:false},
+{name:"Raggiungi il punto di estrazione",detail:"Concludi l'obiettivo entro il limite di tempo.",points:150,done:false}
+];eventLog("Nuovo scenario generato: "+style);persist();render();document.querySelector('[data-tab="mission"]').click()};
+$("addObjective").onclick=()=>{let name=prompt("Nome dell'obiettivo:");if(!name)return;state.objectives.push({name,detail:"Obiettivo aggiunto dall'organizzatore.",points:50,done:false});eventLog("Aggiunto obiettivo: "+name);persist();render()};
+$("startTimer").onclick=()=>{if(tick)return;tick=setInterval(()=>{if(state.remaining>0){state.remaining--;persist();$("timer").textContent=fmt(state.remaining)}else{clearInterval(tick);tick=null;eventLog("Tempo missione scaduto");persist();render()}},1000)};
+$("pauseTimer").onclick=()=>{clearInterval(tick);tick=null;persist()};
+$("resetTimer").onclick=()=>{clearInterval(tick);tick=null;state.remaining=Number(state.duration)*60;persist();render()};
+function score(team,delta){state[team]=Math.max(0,state[team]+delta);eventLog((delta>0?"+":"")+delta+" punti "+(team==="scoreA"?state.teamA:state.teamB));persist();render()}
+$("plusA").onclick=()=>score("scoreA",10);$("minusA").onclick=()=>score("scoreA",-10);$("plusB").onclick=()=>score("scoreB",10);$("minusB").onclick=()=>score("scoreB",-10);
+$("resetScores").onclick=()=>{if(confirm("Azzerare entrambi i punteggi?")){state.scoreA=0;state.scoreB=0;eventLog("Punteggi azzerati");persist();render()}};
+$("gps").onclick=()=>{if(!navigator.geolocation){$("gpsStatus").textContent="Geolocalizzazione non disponibile in questo contesto. Apri la web app tramite HTTPS.";return} $("gpsStatus").textContent="Richiesta posizione…";navigator.geolocation.getCurrentPosition(p=>{$("gpsStatus").textContent=`Posizione acquisita: ${p.coords.latitude.toFixed(5)}, ${p.coords.longitude.toFixed(5)} · precisione circa ${Math.round(p.coords.accuracy)} m. Non condivisa con altri dispositivi.`},e=>{$("gpsStatus").textContent="GPS non autorizzato o non disponibile: "+e.message},{enableHighAccuracy:true,timeout:12000,maximumAge:10000})};
+window.addEventListener("online",()=>{$("netStatus").textContent="ONLINE"});window.addEventListener("offline",()=>{$("netStatus").textContent="OFFLINE"});
+loadFields();
+</script>
+</body></html>
