@@ -1,0 +1,40 @@
+TACTICAL AI — PACCHETTO COMPLETO BASE
+
+COSA INCLUDE
+- index.html: interfaccia mobile, creazione/ingresso partita, elenco giocatori, mappa, GPS condiviso, obiettivi sincronizzati, timer e punteggi.
+- manifest.webmanifest, sw.js, icon.svg: base PWA installabile.
+- supabase/schema.sql: tabelle, funzioni, policy di accesso e Realtime.
+- supabase/functions/generate-mission/index.ts: funzione server che verifica l'appartenenza alla partita e chiama l'API OpenAI senza esporre la chiave nel browser.
+
+IMPORTANTE: NON È UN'INSTALLAZIONE AUTOMATICA COMPLETA
+GitHub Pages ospita solo il frontend. Il database e la funzione AI vanno attivati una volta nel progetto Supabase e serve una chiave API OpenAI con fatturazione/credito. Non inserire mai la chiave OpenAI nel repository GitHub.
+
+PASSO 1 — GITHUB (caricamento una volta)
+1. Estrai questo ZIP.
+2. Nel repository GitHub tactical-ai carica nella ROOT questi 6 file: index.html, manifest.webmanifest, sw.js, icon.svg, supabase-schema.sql, generate-mission.ts.
+3. Puoi caricare tutti e 6 insieme con Upload files e poi fare un solo Commit changes. GitHub Pages serve i quattro file frontend; gli altri due sono il codice da copiare nella configurazione Supabase.
+4. Controlla che GitHub Pages sia attivo su main / root.
+
+PASSO 2 — SUPABASE (una sola configurazione iniziale)
+1. Crea un progetto su https://supabase.com e conserva Project URL e anon/publishable key.
+2. Authentication > Providers: abilita Anonymous Sign-ins.
+3. SQL Editor > New query: incolla tutto il contenuto di supabase-schema.sql e premi Run.
+4. Edge Functions: crea una funzione chiamata generate-mission e incolla il contenuto di generate-mission.ts.
+5. Nelle Secrets della funzione imposta OPENAI_API_KEY con la tua chiave API OpenAI. SUPABASE_URL e SUPABASE_ANON_KEY sono normalmente disponibili alle Edge Functions; se richiesto, aggiungili come secrets.
+6. Deploy della funzione. Lascia attiva la verifica JWT.
+7. Apri la web app > Configurazione: inserisci Project URL e anon/publishable key > Salva e connetti.
+
+PASSO 3 — PROVA
+1. Crea una partita sul primo telefono e condividi il codice.
+2. Un secondo telefono apre il sito, inserisce nominativo e codice, poi entra.
+3. Ogni giocatore preme Attiva condivisione GPS e concede il permesso.
+4. Gli utenti e le posizioni compariranno nella mappa; la condivisione si interrompe premendo Interrompi GPS.
+5. Per AI: vai in Missioni AI e premi Genera missione.
+
+LIMITI / SICUREZZA
+- La condivisione GPS richiede Internet e consenso esplicito. iOS può sospendere gli aggiornamenti in background quando Safari è inattivo o il telefono è bloccato.
+- La cache PWA conserva i file dell'app, ma non garantisce mappe offline né sincronizzazione offline.
+- L'AI genera coordinate indicative: l'organizzatore deve controllare sul posto i confini, le aree interdette, gli accessi e la sicurezza. Non usare punti generati automaticamente senza approvazione.
+- Questa è una base MVP: non è stata sottoposta ad audit di sicurezza o test di carico. L'accesso anonimo è pratico per i test; per eventi pubblici/privati seri aggiungere account, ruoli organizzatore e limiti anti-abuso.
+- Il timer e il punteggio mostrati sono locali in questa build; gli eventi di punteggio vengono registrati ma non ancora sincronizzati come stato ufficiale.
+- I tile OpenStreetMap richiedono Internet e rispettano la policy del provider.
