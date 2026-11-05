@@ -37,7 +37,7 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
 <div class="panel"><h2>Giocatori collegati</h2><div id="members" class="hint">Nessuna partita attiva.</div><div class="actions"><button id="shareGps" class="primary" disabled>◎ Attiva condivisione GPS</button><button id="stopGps" class="ghost" disabled>Interrompi GPS</button></div><p class="hint">La posizione viene condivisa solo dopo il tuo consenso. Su iPhone gli aggiornamenti possono interrompersi se Safari viene sospeso o il telefono è bloccato.</p></div>
 </section>
 <section id="maptab" class="hidden">
-<div class="panel"><h2>Mappa operativa condivisa</h2><div class="actions" style="margin:0 0 9px"><button id="locate">◎ La mia posizione</button><button id="addPoint" class="ghost" disabled>＋ Aggiungi obiettivo sulla mappa</button><button id="centerMap" class="ghost">Centro su di me</button><button id="drawFence" class="ghost">Disegna perimetro</button><button id="saveFence" class="primary" disabled>Salva perimetro</button><button id="clearFence" class="warn">Cancella bozza</button></div><div id="fenceStatus" class="notice" style="margin-bottom:9px">Perimetro non caricato.</div><div id="map"></div><p class="hint">Le posizioni si aggiornano quando il browser invia il GPS. Su iPhone il monitoraggio può fermarsi in background o a schermo bloccato: non è un sistema di sicurezza né un tracciamento garantito. Verifica sempre fisicamente l’area e i confini.</p></div>
+<div class="panel"><h2>Mappa operativa condivisa</h2><div class="actions" style="margin:0 0 9px"><button id="locate">◎ La mia posizione</button><button id="addPoint" class="ghost" disabled>＋ Aggiungi obiettivo sulla mappa</button><button id="centerMap" class="ghost">Centro su di me</button><button id="drawFence" class="ghost">Disegna perimetro</button><button id="saveFence" class="primary" disabled>Salva perimetro</button><button id="clearFence" class="warn">Cancella bozza</button></div><div id="fenceStatus" class="notice" style="margin-bottom:9px">Perimetro non caricato.</div><div id="map"></div><p class="hint">Per delimitare: premi Disegna perimetro, poi tocca la mappa in almeno 3 punti distinti e premi Salva perimetro. Puoi zoomare e spostare la mappa con due dita. Le posizioni si aggiornano quando il browser invia il GPS. Su iPhone il monitoraggio può fermarsi in background o a schermo bloccato: non è un sistema di sicurezza né un tracciamento garantito. Verifica sempre fisicamente l’area e i confini.</p></div>
 </section>
 <section id="missiontab" class="layout two hidden">
 <div class="panel"><h2>Generatore AI</h2><div class="fields">
@@ -67,7 +67,7 @@ const $=id=>document.getElementById(id);let sb=null,user=null,game=null,member=n
 let fenceLayer=null,fenceDraft=[],fencePolygon=null,drawingFence=false,outsideFence=false,gameEnded=false;
 const palette={ALFA:'#7eadd8',BRAVO:'#d77c70',NEUTRAL:'#e4bd70',ORGANIZZATORE:'#a8c58a'};
 function msg(t,kind=''){ $('gameStatus').className='notice '+kind;$('gameStatus').textContent=t; }
-function tab(id){document.querySelectorAll('main>section[id]').forEach(s=>s.classList.toggle('hidden',s.id!==id));document.querySelectorAll('.tab').forEach(b=>b.classList.toggle('active',b.dataset.tab===id));if(id==='maptab'&&map)setTimeout(()=>map.invalidateSize(),180);}
+function tab(id){document.querySelectorAll('main>section[id]').forEach(s=>s.classList.toggle('hidden',s.id!==id));document.querySelectorAll('.tab').forEach(b=>b.classList.toggle('active',b.dataset.tab===id));if(id==='maptab'){if(!map){initMap();drawFenceLayer();renderMap();}if(map)setTimeout(()=>{map.invalidateSize(true);if(fenceLayer&&fenceDraft.length>=3)map.fitBounds(fenceLayer.getBounds(),{padding:[20,20]});},250);}}
 document.querySelectorAll('.tab').forEach(b=>b.onclick=()=>tab(b.dataset.tab));
 function config(){return {url:localStorage.getItem('tai_url')||'',key:localStorage.getItem('tai_key')||''};}
 async function connect(){let c=config();if(!c.url||!c.key){$('configStatus').textContent='Inserisci URL e chiave Supabase.';return false;}try{sb=window.supabase.createClient(c.url,c.key);let {data,error}=await sb.auth.getSession();if(error)throw error;if(!data.session){let a=await sb.auth.signInAnonymously();if(a.error)throw a.error;}let u=await sb.auth.getUser();if(u.error)throw u.error;user=u.data.user;$('connection').textContent='● SERVER COLLEGATO';$('connection').style.color='#a8c58a';$('configStatus').textContent='Connesso a Supabase. Identità anonima attiva.';return true;}catch(e){sb=null;$('connection').textContent='● ERRORE SERVER';$('configStatus').textContent='Connessione non riuscita: '+e.message;return false;}}
@@ -102,7 +102,7 @@ async function refreshMembers(){if(!game)return;let {data,error}=await sb.from('
 async function refreshObjectives(){if(!game)return;let {data,error}=await sb.from('mission_objectives').select('*').eq('game_id',game.id).order('created_at');if(error)return;objectives=data||[];window.renderObjectives();renderMap();$('doneCount').textContent=objectives.filter(o=>o.completed).length+'/'+objectives.length;}
 async function refreshEvents(){if(!game)return;let {data,error}=await sb.from('game_events').select('*').eq('game_id',game.id).order('created_at',{ascending:false}).limit(20);if(error)return;$('eventLog').innerHTML=(data||[]).map(e=>`<div class="item"><div><b>${esc(e.event_type)}</b><small>${esc(e.description||'')} · ${new Date(e.created_at).toLocaleTimeString()}</small></div></div>`).join('')||'Nessun evento registrato.';}
 function esc(s){return String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
-window.renderObjectives = function renderObjectives(){const el=$('objectives');if(!el)return;el.innerHTML=objectives.map(o=>`<div class="item"><div><b>${esc(o.title)}</b><small>${esc(o.team||'NEUTRAL')} · ${o.completed?'Completato':'Da completare'}<br>${esc(o.description||'')}</small></div></div>`).join('')||'Nessun obiettivo disponibile.';}
+window.renderObjectives=function(){const el=$('objectives');if(!el)return;el.innerHTML=objectives.map(o=>`<div class="item"><div><b>${esc(o.title)}</b><small>${esc(o.team||'NEUTRAL')} · ${o.completed?'Completato':'Da completare'}<br>${esc(o.description||'')}</small></div></div>`).join('')||'Nessun obiettivo disponibile.';}
 
 function isOrganizer(){return member?.team==='ORGANIZZATORE';}
 function setFenceStatus(t,kind=''){const el=$('fenceStatus');if(el){el.textContent=t;el.className='notice '+kind;}}
@@ -122,7 +122,7 @@ async function loadFence(){
   if(error){setFenceStatus('Impossibile caricare il perimetro: '+error.message,'bad');return;}
   if(data?.coordinates?.length>=3){
     fenceDraft=data.coordinates.map(p=>({lat:Number(p[0]),lng:Number(p[1])}));
-    drawFenceLayer(); setFenceStatus('Perimetro caricato. '+fenceDraft.length+' vertici.','good');
+    drawFenceLayer(); setFenceStatus('Perimetro caricato. '+fenceDraft.length+' vertici.','good');if(map)setTimeout(()=>map.fitBounds(fenceLayer.getBounds(),{padding:[20,20]}),100);
   }else{fenceDraft=[];drawFenceLayer();setFenceStatus('Nessun perimetro salvato.');}
 }
 function drawFenceLayer(){
@@ -158,7 +158,7 @@ async function checkGeofence(lat,lng){
   }
 }
 
-function initMap(){if(!window.L)return;map=L.map('map').setView([41.9,12.5],14);L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19,attribution:'© OpenStreetMap'}).addTo(map);markerLayer=L.layerGroup().addTo(map);map.on('click',e=>{if(drawingFence){fenceDraft.push({lat:e.latlng.lat,lng:e.latlng.lng});drawFenceLayer();setFenceStatus('Bozza: '+fenceDraft.length+' punti. Aggiungine almeno 3 e salva.');return;}if(addMode){addMode=false;$('addPoint').classList.remove('primary');addObjective(e.latlng.lat,e.latlng.lng);}});}
+function initMap(){if(!window.L)return;map=L.map('map').setView([41.9,12.5],14);L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19,attribution:'© OpenStreetMap'}).addTo(map);markerLayer=L.layerGroup().addTo(map);map.on('click',e=>{if(drawingFence){fenceDraft.push({lat:Number(e.latlng.lat.toFixed(6)),lng:Number(e.latlng.lng.toFixed(6))});drawFenceLayer();setFenceStatus('Bozza perimetro: '+fenceDraft.length+' vertici. '+(fenceDraft.length<3?'Aggiungine ancora '+(3-fenceDraft.length)+'.':'Ora puoi premere SALVA PERIMETRO.'),fenceDraft.length>=3?'good':'');return;}if(addMode){addMode=false;$('addPoint').classList.remove('primary');addObjective(e.latlng.lat,e.latlng.lng);}});}
 function renderMap(){if(!map)return;markerLayer.clearLayers();objectives.forEach(o=>{let col=o.team==='ALFA'?palette.ALFA:o.team==='BRAVO'?palette.BRAVO:palette.NEUTRAL;L.circleMarker([o.lat,o.lng],{radius:9,color:col,fillColor:col,fillOpacity:.9}).addTo(markerLayer).bindPopup(`<b>${esc(o.title)}</b><br>${esc(o.description||'')}<br>${o.completed?'Completato':'Da completare'}`);});members.forEach(m=>{if(m.lat==null||m.lng==null)return;let col=palette[m.team]||palette.ORGANIZZATORE;L.circleMarker([m.lat,m.lng],{radius:7,color:'#101512',weight:2,fillColor:col,fillOpacity:1}).addTo(markerLayer).bindPopup(`<b>${esc(m.player_name)}</b><br>${esc(m.team)}<br>GPS condiviso`);});}
 async function addObjective(lat,lng,custom){try{if(!game)throw Error('Entra prima in una partita.');let title=custom||prompt('Nome obiettivo:','Punto di controllo');if(!title)return;let {error}=await sb.from('mission_objectives').insert({game_id:game.id,title,description:'Obiettivo inserito dall’organizzatore',lat,lng,team:'NEUTRAL',created_by:user.id});if(error)throw error;await refreshObjectives();}catch(e){alert(e.message);}}
 $('addPoint').onclick=()=>{addMode=!addMode;$('addPoint').classList.toggle('primary',addMode);if(addMode)tab('maptab');};
@@ -166,8 +166,10 @@ $('addPoint').onclick=()=>{addMode=!addMode;$('addPoint').classList.toggle('prim
 $('drawFence').onclick=()=>{
   if(!game)return alert('Entra prima in una partita.');
   if(!isOrganizer())return alert('Solo l’organizzatore può disegnare il perimetro.');
+  if(!map){tab('maptab');}
   drawingFence=true;fenceDraft=[];drawFenceLayer();$('saveFence').disabled=true;
-  setFenceStatus('Modalità disegno attiva: tocca la mappa per aggiungere i vertici. Servono almeno 3 punti.');
+  setFenceStatus('DISEGNO ATTIVO: tocca almeno 3 punti sulla mappa, uno dopo l’altro. Il perimetro apparirà mentre aggiungi i punti. Poi premi SALVA PERIMETRO.');
+  if(map)setTimeout(()=>map.invalidateSize(true),250);
 };
 $('saveFence').onclick=saveFence;
 $('clearFence').onclick=()=>{
@@ -237,6 +239,6 @@ $('endGame').onclick=async()=>{
  $('generateAI').disabled=true;document.querySelectorAll('#scoretab button').forEach(b=>b.disabled=true);
 };
 $('aiDuration').onchange=()=>{if(!game&&!timer){seconds=(+$('aiDuration').value||90)*60;updateTimer();}};
-$('sbUrl').value=config().url;$('sbKey').value=config().key;initMap();updateTimer();if(config().url&&config().key)connect();
+$('sbUrl').value=config().url;$('sbKey').value=config().key;updateTimer();if(config().url&&config().key)connect();
 if('serviceWorker'in navigator&&location.protocol.startsWith('http'))navigator.serviceWorker.register('./sw.js').catch(()=>{});
 </script></body></html>
